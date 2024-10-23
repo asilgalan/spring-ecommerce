@@ -23,6 +23,7 @@ public class AdministradorController {
     private IProductoService service;
 
     @Autowired
+  
     private IUsuarioService serviceUsuario;
 
      @GetMapping()

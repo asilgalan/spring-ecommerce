@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,8 @@ import com.asil.spring_ecommerce.models.Usuario;
 import com.asil.spring_ecommerce.service.OrdenService.IOrdenService;
 import com.asil.spring_ecommerce.service.UsuarioService.IUsuarioService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 
@@ -48,7 +51,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/save")
-    public String save(Usuario usuario, BindingResult result) {
+    public String save(@ModelAttribute Usuario usuario, BindingResult result,HttpServletRequest request,HttpServletResponse response) {
 
         if (result.hasErrors()) {
             return "usuario/registro";
@@ -56,7 +59,7 @@ public class UsuarioController {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         usuario.setTipo("USER");
 
-        usuarioService.save(usuario);
+        usuarioService.save(usuario,request,response);
 
         return "redirect:/";
     }

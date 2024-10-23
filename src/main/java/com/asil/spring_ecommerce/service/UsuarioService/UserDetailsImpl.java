@@ -23,8 +23,8 @@ public class UserDetailsImpl implements UserDetailsService {
     private HttpSession session;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Usuario> usuariosOptional = usuarioService.findByEmail(username);
+    public UserDetails loadUserByUsername(String gmail) throws UsernameNotFoundException {
+        Optional<Usuario> usuariosOptional = usuarioService.findByEmail(gmail);
         if (usuariosOptional.isPresent()) {
             session.setAttribute("idusuario", usuariosOptional.get().getId());
             Usuario usuario = usuariosOptional.get();

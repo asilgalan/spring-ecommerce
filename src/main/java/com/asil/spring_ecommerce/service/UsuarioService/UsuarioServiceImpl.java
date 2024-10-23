@@ -4,14 +4,36 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 import com.asil.spring_ecommerce.models.Usuario;
 import com.asil.spring_ecommerce.repository.UsuarioRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 @Service
+
 public class UsuarioServiceImpl implements IUsuarioService {
     @Autowired
     private UsuarioRepository repository;
+
+    @Autowired
+    private UserDetailsService services;
+    @Autowired
+    private SecurityContextRepository securityContextRepository;
+     
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
 
     @Override
     public List<Usuario> findAll() {
@@ -26,13 +48,20 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
-    public Usuario save(Usuario usuario) {
+    public void save(Usuario usuario,HttpServletRequest request,HttpServletResponse response) {
       
-        if(usuario.getId() !=null && usuario.getId() >0){
-            return repository.save(usuario);
-        }else{
-           return  repository.save(usuario);
-        }
+      repository.save(usuario);
+
+      UserDetails user=services.loadUserByUsername(usuario.getEmail());
+      Authentication authentication=authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(usuario.getEmail(), usuario.getPassword(),user.getAuthorities())
+      );
+      SecurityContextHolderStrategy securityContextHolderStrategy=SecurityContextHolder.getContextHolderStrategy();
+
+      SecurityContext context=SecurityContextHolder.createEmptyContext();
+      context.setAuthentication(authentication);
+      securityContextHolderStrategy.setContext(context);
+      securityContextRepository.saveContext(context, request, response);
     }
 
     @Override
